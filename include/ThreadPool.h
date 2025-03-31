@@ -41,13 +41,15 @@ class ThreadPool {
   ThreadPool(const ThreadPool &) = delete;  // 禁止拷贝构造函数
   ThreadPool &operator=(const ThreadPool &) = delete;  // 禁止拷贝赋值运算符
 
+  void submitTask(std::shared_ptr<Task> task);
+
  private:
   // 定义线程函数
   void threadFunc();
 
  private:
   std::vector<std::unique_ptr<Thread>> threads_{};  // 线程池中的线程列表
-  std::size_t initThreadSize_{};     // 线程池的初始线程数
+  std::size_t initThreadSize_{};  // 线程池的初始线程数
 
   std::queue<std::shared_ptr<Task>> taskQueue_{};  // 任务队列
   std::atomic<int> taskSize_{};  // 任务队列中的任务数
