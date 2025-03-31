@@ -9,5 +9,4 @@ class Task {
   virtual void run() = 0;
 };
 
-
 #endif  // TASK_H_
