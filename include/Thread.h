@@ -4,6 +4,8 @@
 
 class Thread {
  public:
+  void start();
+
  private:
 };
 
