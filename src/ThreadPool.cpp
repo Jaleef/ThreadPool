@@ -63,7 +63,32 @@ void ThreadPool::start(int initThreadSize) {
 }
 
 void ThreadPool::threadFunc() {
-  std::cout << "begin thread function" << std::endl;
-  std::cout << std::this_thread::get_id() << std::endl;
-  std::cout << "end thread function" << std::endl;
+  while (true) {
+    // 先获取锁
+    std::unique_lock<std::mutex> lock(taskQueueMutex_);
+
+    // 等待notEmpty条件
+    notEmpty_.wait(lock, [this]() -> bool { return taskQueue_.size() > 0; });
+
+    // 从任务队列中取出一个任务出来
+    std::shared_ptr<Task> task = taskQueue_.front();
+    taskQueue_.pop();
+    taskSize_--;
+
+    // 如果依然有剩余任务, 继续通知其他线程执行任务
+    if (taskQueue_.size() > 0) {
+      notEmpty_.notify_all();
+    }
+
+    // 取出一个任务, 进行通知
+    notFull_.notify_all();
+
+    // 释放锁
+    lock.release();
+
+    // 当前线程负责执行这个任务
+    if (task != nullptr) {
+      task->run();
+    }
+  }
 }

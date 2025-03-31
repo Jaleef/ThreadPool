@@ -41,8 +41,6 @@ class ThreadPool {
   ThreadPool(const ThreadPool &) = delete;  // 禁止拷贝构造函数
   ThreadPool &operator=(const ThreadPool &) = delete;  // 禁止拷贝赋值运算符
 
-  void submitTask(std::shared_ptr<Task> task);
-
  private:
   // 定义线程函数
   void threadFunc();
