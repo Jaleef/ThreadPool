@@ -46,7 +46,7 @@ class ThreadPool {
   void threadFunc();
 
  private:
-  std::vector<Thread *> threads_{};  // 线程池中的线程列表
+  std::vector<std::unique_ptr<Thread>> threads_{};  // 线程池中的线程列表
   std::size_t initThreadSize_{};     // 线程池的初始线程数
 
   std::queue<std::shared_ptr<Task>> taskQueue_{};  // 任务队列

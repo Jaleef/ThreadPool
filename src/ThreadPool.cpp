@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <thread>
+#include <memory>
 
 #include "ThreadPool.h"
 
@@ -38,7 +39,8 @@ void ThreadPool::start(int initThreadSize) {
 
   // 创建所有的线程
   for (int i = 0 ; i < initThreadSize_ ; ++i) {
-    threads_.emplace_back(new Thread([this] { this->threadFunc(); }));
+    threads_.emplace_back(
+      std::make_unique<Thread>([this] { this->threadFunc(); }));
   }
 
   // 启动所有线程
