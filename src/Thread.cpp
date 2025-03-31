@@ -1,7 +1,7 @@
 // copyright
-#include <thread>
-
 #include "Thread.h"
+
+#include <thread>
 
 void Thread::start() {
   // 创建一个线程来执行一个线程函数
@@ -9,7 +9,6 @@ void Thread::start() {
   t.detach();  // 分离线程
 }
 
-Thread::Thread(ThreadFunc func):
-  func_{func} {}
+Thread::Thread(ThreadFunc func) : func_{func} {}
 
 Thread::~Thread() {}
