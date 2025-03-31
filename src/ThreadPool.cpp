@@ -29,9 +29,14 @@ void ThreadPool::submitTask(std::shared_ptr<Task> task) {
   std::unique_lock<std::mutex> lock(taskQueueMutex_);
 
   // 线程的通信 等待任务队列有空余
-  notFull_.wait(lock, [this]() -> bool {
-    return taskQueue_.size() < taskQueueMaxThreshold_;
-  });
+  // 用户提交任务, 最长不阻塞超过1s, 否则判断提交任务失败
+  if (!notFull_.wait_for(lock, std::chrono::seconds(1), [this]() -> bool {
+        return taskQueue_.size() < taskQueueMaxThreshold_;
+      })) {
+    // 表示notFull_等待1s后条件仍没有满足
+    std::cerr << "task queue is full, submit task fail." << std::endl;
+    return;
+  }
 
   // 如果有空余 把任务放入任务队列中
   taskQueue_.emplace(task);
