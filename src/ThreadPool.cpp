@@ -1,4 +1,7 @@
 // copyright
+#include <functional>
+#include <iostream>
+#include <thread>
 
 #include "ThreadPool.h"
 
@@ -35,11 +38,17 @@ void ThreadPool::start(int initThreadSize) {
 
   // 创建所有的线程
   for (int i = 0 ; i < initThreadSize_ ; ++i) {
-    threads_.emplace_back(new Thread());
+    threads_.emplace_back(new Thread([this] { this->threadFunc(); }));
   }
 
   // 启动所有线程
   for (int i = 0 ; i < initThreadSize_ ; ++i) {
     threads_[i]->start();
   }
+}
+
+void ThreadPool::threadFunc() {
+  std::cout << "begin thread function" << std::endl;
+  std::cout << std::this_thread::get_id() << std::endl;
+  std::cout << "end thread function" << std::endl;
 }
