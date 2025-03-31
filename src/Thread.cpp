@@ -11,3 +11,5 @@ void Thread::start() {
 
 Thread::Thread(ThreadFunc func):
   func_{func} {}
+
+Thread::~Thread() {}
