@@ -29,14 +29,16 @@ void ThreadPool::setTaskQueueMaxThreshold(int threshold) {
 void ThreadPool::submitTask(std::shared_ptr<Task> task) {
 }
 
-void ThreadPool::start(int initThreadSize = 4) {
+void ThreadPool::start(int initThreadSize) {
   // 设置初始线程个数
   setInitThreadSize(initThreadSize);
 
+  // 创建所有的线程
   for (int i = 0 ; i < initThreadSize_ ; ++i) {
     threads_.emplace_back(new Thread());
   }
 
+  // 启动所有线程
   for (int i = 0 ; i < initThreadSize_ ; ++i) {
     threads_[i]->start();
   }

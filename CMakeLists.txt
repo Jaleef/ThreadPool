@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
     src/main.cpp
+    src/ThreadPool.cpp
 )
 
 add_executable(threadpool ${SOURCES})
