@@ -7,6 +7,7 @@ set(SOURCES
     src/main.cpp
     src/ThreadPool.cpp
     src/Thread.cpp
+    src/Semaphore.cpp
 )
 
 add_executable(threadpool ${SOURCES})
