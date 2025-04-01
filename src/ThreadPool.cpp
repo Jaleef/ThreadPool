@@ -69,14 +69,14 @@ void ThreadPool::threadFunc() {
       // 先获取锁
       std::unique_lock<std::mutex> lock(taskQueueMutex_);
 
-      std::cout << "tid: " << std::this_thread::get_id()
-                << "尝试获取任务..." << std::endl;
+      std::cout << "tid: " << std::this_thread::get_id() << "尝试获取任务..."
+                << std::endl;
 
       // 等待notEmpty条件
       notEmpty_.wait(lock, [this]() -> bool { return taskQueue_.size() > 0; });
 
-      std::cout << "tid: " << std::this_thread::get_id()
-                << "获取任务成功..." << std::endl;
+      std::cout << "tid: " << std::this_thread::get_id() << "获取任务成功..."
+                << std::endl;
 
       // 从任务队列中取出一个任务出来
       task = taskQueue_.front();
