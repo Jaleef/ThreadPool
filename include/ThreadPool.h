@@ -11,6 +11,7 @@
 
 #include "Task.h"
 #include "Thread.h"
+#include "Result.h"
 
 // 线程池支持的模式
 enum class ThreadPoolMode {
@@ -33,7 +34,7 @@ class ThreadPool {
   void setInitThreadSize(int size);
 
   // 给线程池提交任务
-  void submitTask(std::shared_ptr<Task> task);
+  Result submitTask(std::shared_ptr<Task> task);
 
   // 启动线程池
   void start(int initThreadSize = 4);

@@ -24,7 +24,7 @@ void ThreadPool::setTaskQueueMaxThreshold(int threshold) {
   taskQueueMaxThreshold_ = threshold;
 }
 
-void ThreadPool::submitTask(std::shared_ptr<Task> task) {
+Result ThreadPool::submitTask(std::shared_ptr<Task> task) {
   // 获取锁
   std::unique_lock<std::mutex> lock(taskQueueMutex_);
 
