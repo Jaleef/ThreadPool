@@ -35,7 +35,7 @@ Result ThreadPool::submitTask(std::shared_ptr<Task> task) {
       })) {
     // 表示notFull_等待1s后条件仍没有满足
     std::cerr << "task queue is full, submit task fail." << std::endl;
-    return;
+    return Result(task, false);
   }
 
   // 如果有空余 把任务放入任务队列中
@@ -44,6 +44,8 @@ Result ThreadPool::submitTask(std::shared_ptr<Task> task) {
 
   // 因为新放了任务 任务队列肯定不空了 在notEmpty_上通知一个线程
   notEmpty_.notify_all();
+
+  return Result(task);
 }
 
 void ThreadPool::start(int initThreadSize) {
@@ -87,13 +89,14 @@ void ThreadPool::threadFunc() {
       if (taskQueue_.size() > 0) {
         notEmpty_.notify_all();
       }
+
       // 取出一个任务, 进行通知
       notFull_.notify_all();
     }
 
     // 当前线程负责执行这个任务
     if (task != nullptr) {
-      task->run();
+      task->exec();
     }
   }
 }
