@@ -19,14 +19,13 @@ class Any {
   Any& operator=(Any&&) = default;
 
   template <typename T>
-  explicit Any(T data) :
-      base_{std::make_unique<Derive<T>>(data)} {}
+  explicit Any(T data) : base_{std::make_unique<Derive<T>>(data)} {}
 
   template <typename T>
   T cast_() {
     // 怎么从base_中找到它所指向的Derive对象并取出data成员变量
     // 基类指针 转为 派生类指针
-    Derive<T> *pd = dynamic_cast<Derive<T> *>(base_.get());
+    Derive<T>* pd = dynamic_cast<Derive<T>*>(base_.get());
     if (pd == nullptr) {
       throw "type incompatible!";
     }

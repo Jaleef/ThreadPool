@@ -16,7 +16,6 @@ class Result {
 
   ~Result() = default;
 
-
   // setVal方法, 获取任务执行完的返回值
   void setVal(Any any);
 
@@ -25,7 +24,7 @@ class Result {
 
  private:
   Any any_;                     // 存储任务的返回值
-  Semaphore sem_;                // 线程间通信的信号量
+  Semaphore sem_;               // 线程间通信的信号量
   std::shared_ptr<Task> task_;  // 指向对应获取返回值的任务对象
   std::atomic<bool> isValid_;   // 返回值是否有效
 };

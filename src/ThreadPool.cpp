@@ -45,6 +45,9 @@ Result ThreadPool::submitTask(std::shared_ptr<Task> task) {
   // 因为新放了任务 任务队列肯定不空了 在notEmpty_上通知一个线程
   notEmpty_.notify_all();
 
+  // 需要根据任务数量和空闲线程数量，判断是否需要创建新的线程出来
+
+  // 返回任务的Result对象
   return Result(task);
 }
 
@@ -65,7 +68,7 @@ void ThreadPool::start(int initThreadSize) {
 }
 
 void ThreadPool::threadFunc() {
-  for (;;) {
+  while (true) {
     std::shared_ptr<Task> task;
     {
       // 先获取锁

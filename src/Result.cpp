@@ -1,8 +1,9 @@
 // copyright
 #include "Result.h"
-#include "Task.h"
 
 #include <utility>
+
+#include "Task.h"
 
 Result::Result(std::shared_ptr<Task> task, bool isValid)
     : task_(task), isValid_(isValid) {

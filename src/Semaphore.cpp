@@ -9,8 +9,6 @@ void Semaphore::post() {
 
 void Semaphore::wait() {
   std::unique_lock<std::mutex> lock(mutex_);
-  cond_.wait(lock, [this]() -> bool {
-    return resLimit_ > 0;
-  });
+  cond_.wait(lock, [this]() -> bool { return resLimit_ > 0; });
   resLimit_--;
 }

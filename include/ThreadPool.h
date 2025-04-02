@@ -9,9 +9,9 @@
 #include <queue>
 #include <vector>
 
+#include "Result.h"
 #include "Task.h"
 #include "Thread.h"
-#include "Result.h"
 
 // 线程池支持的模式
 enum class ThreadPoolMode {
