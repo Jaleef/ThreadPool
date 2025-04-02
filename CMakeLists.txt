@@ -8,6 +8,8 @@ set(SOURCES
     src/ThreadPool.cpp
     src/Thread.cpp
     src/Semaphore.cpp
+    src/Task.cpp 
+    src/Result.cpp
 )
 
 add_executable(threadpool ${SOURCES})
