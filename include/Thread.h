@@ -4,7 +4,7 @@
 
 #include <functional>
 
-using ThreadFunc = std::function<void()>;
+using ThreadFunc = std::function<void(int)>;
 
 class Thread {
  public:
@@ -15,8 +15,13 @@ class Thread {
   // 启动线程
   void start();
 
+  // 获取线程id
+  int getThreadId() const;
+
  private:
   ThreadFunc func_;
+  static int generatedId_;  // 线程ID的生成器
+  int threadId_;            // 线程ID
 };
 
 #endif  // THREAD_H_
