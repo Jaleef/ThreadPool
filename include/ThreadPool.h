@@ -7,6 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <unordered_map>
 #include <vector>
 
 #include "Result.h"
@@ -33,6 +34,9 @@ class ThreadPool {
   // 设置线程池的初始线程数
   void setInitThreadSize(int size);
 
+  // 设置cache模式下线程个数的最大阈值
+  void setThreadMaxThreshold(int threshold);
+
   // 给线程池提交任务
   Result submitTask(std::shared_ptr<Task> task);
 
@@ -44,11 +48,18 @@ class ThreadPool {
 
  private:
   // 定义线程函数
-  void threadFunc();
+  void threadFunc(int threadId = 0);
+
+  // 检查pool的运行状态
+  bool checkRunningState() const;
 
  private:
-  std::vector<std::unique_ptr<Thread>> threads_{};  // 线程池中的线程列表
-  std::size_t initThreadSize_{};  // 线程池的初始线程数
+  // std::vector<std::unique_ptr<Thread>> threads_{};  // 线程池中的线程列表
+  std::unordered_map<int, std::unique_ptr<Thread>> threads_;  // 线程列表
+  std::size_t initThreadSize_{};          // 线程池的初始线程数
+  std::atomic<int> threadCurrentSize_{};  // 线程池当前的线程数
+  std::atomic<int> idleThreadSize_{};     // 线程池中空闲线程的数量
+  int threadMaxThreshold_{};              // 线程池的最大线程数
 
   std::queue<std::shared_ptr<Task>> taskQueue_{};  // 任务队列
   std::atomic<int> taskSize_{};  // 任务队列中的任务数
@@ -58,7 +69,8 @@ class ThreadPool {
   std::condition_variable notFull_{};   // 任务队列非满条件变量
   std::condition_variable notEmpty_{};  // 任务队列非空条件变量
 
-  ThreadPoolMode poolMode_;  // 线程池的模式
+  ThreadPoolMode poolMode_;         // 线程池的模式
+  std::atomic<bool> isPoolRunning;  //  表示当前线程池的启动状态
 };
 
 #endif  // THREADPOOL_H_
