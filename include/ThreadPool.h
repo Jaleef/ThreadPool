@@ -72,7 +72,7 @@ class ThreadPool {
   std::condition_variable exitCond_{};  // 等待线程资源全部回收
 
   ThreadPoolMode poolMode_;         // 线程池的模式
-  std::atomic<bool> isPoolRunning;  //  表示当前线程池的启动状态
+  std::atomic<bool> isPoolRunning_;  //  表示当前线程池的启动状态
 };
 
 #endif  // THREADPOOL_H_

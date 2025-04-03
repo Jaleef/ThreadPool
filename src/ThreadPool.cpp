@@ -18,12 +18,12 @@ ThreadPool::ThreadPool()
       threadCurrentSize_{0},
       taskQueueMaxThreshold_{TASK_MAX_THRESHOLD},
       poolMode_{ThreadPoolMode::MODE_FIXED},
-      isPoolRunning{false},
+      isPoolRunning_{false},
       idleThreadSize_{0} {}
 
 ThreadPool::~ThreadPool() {
   // 线程池析构函数
-  isPoolRunning = false;
+  isPoolRunning_ = false;
   notEmpty_.notify_all();  // 唤醒所有的线程
 
   // 等待线程池里所有的线程返回
@@ -119,7 +119,7 @@ void ThreadPool::start(int initThreadSize) {
   threadCurrentSize_ = initThreadSize_;
 
   // 设置线程池的运行状态
-  isPoolRunning = true;
+  isPoolRunning_ = true;
 
   // 创建所有的线程
   for (int i = 0; i < initThreadSize_; ++i) {
@@ -141,7 +141,7 @@ void ThreadPool::threadFunc(int threadId) {
   // 记录上一次线程执行的时间
   auto lastTime = std::chrono::high_resolution_clock::now();
 
-  while (isPoolRunning) {
+  while (isPoolRunning_) {
     std::shared_ptr<Task> task;
     {
       // 先获取锁
@@ -187,7 +187,7 @@ void ThreadPool::threadFunc(int threadId) {
         }
 
         // 线程池要结束, 回收线程资源
-        if (!isPoolRunning) {
+        if (!isPoolRunning_) {
           break;
         }
       }
@@ -231,4 +231,4 @@ void ThreadPool::threadFunc(int threadId) {
   exitCond_.notify_all();  // 唤醒所有的exitCond条件变量阻塞的线程
 }
 
-bool ThreadPool::checkRunningState() const { return isPoolRunning; }
+bool ThreadPool::checkRunningState() const { return isPoolRunning_; }
