@@ -69,6 +69,8 @@ class ThreadPool {
   std::condition_variable notFull_{};   // 任务队列非满条件变量
   std::condition_variable notEmpty_{};  // 任务队列非空条件变量
 
+  std::condition_variable exitCond_{};  // 等待线程资源全部回收
+
   ThreadPoolMode poolMode_;         // 线程池的模式
   std::atomic<bool> isPoolRunning;  //  表示当前线程池的启动状态
 };

@@ -21,7 +21,16 @@ ThreadPool::ThreadPool()
       isPoolRunning{false},
       idleThreadSize_{0} {}
 
-ThreadPool::~ThreadPool() {}
+ThreadPool::~ThreadPool() {
+  // 线程池析构函数
+  isPoolRunning = false;
+  notEmpty_.notify_all();  // 唤醒所有的线程
+
+  // 等待线程池里所有的线程返回
+  // 有两种状态: 阻塞 & 执行任务中
+  std::unique_lock<std::mutex> lock(taskQueueMutex_);
+  exitCond_.wait(lock, [this]() -> bool { return threads_.size() == 0; });
+}
 
 void ThreadPool::setThreadPoolMode(ThreadPoolMode mode) {
   if (checkRunningState()) {
@@ -112,7 +121,6 @@ void ThreadPool::start(int initThreadSize) {
   // 设置线程池的运行状态
   isPoolRunning = true;
 
-
   // 创建所有的线程
   for (int i = 0; i < initThreadSize_; ++i) {
     auto ptr = std::make_unique<Thread>(
@@ -133,7 +141,7 @@ void ThreadPool::threadFunc(int threadId) {
   // 记录上一次线程执行的时间
   auto lastTime = std::chrono::high_resolution_clock::now();
 
-  while (true) {
+  while (isPoolRunning) {
     std::shared_ptr<Task> task;
     {
       // 先获取锁
@@ -145,9 +153,9 @@ void ThreadPool::threadFunc(int threadId) {
       // cache模式下, 创建过多的线程需要回收
       // 超过initThreadSize_的线程, 需要回收
       // 按照 当前时间 - 上一次线程执行的事件 > 60s的标准来判断回收
-      if (poolMode_ == ThreadPoolMode::MODE_CACHED) {
-        // 每一秒返回一次
-        while (taskQueue_.size() == 0) {
+      // 每一秒返回一次
+      while (taskQueue_.size() == 0) {
+        if (poolMode_ == ThreadPoolMode::MODE_CACHED) {
           // 条件变量, 超时返回了
           if (std::cv_status::timeout ==
               notEmpty_.wait_for(lock, std::chrono::seconds(1))) {
@@ -156,7 +164,8 @@ void ThreadPool::threadFunc(int threadId) {
                 now - lastTime);
 
             // 如果当前线程的空闲时间超过60s, 需要回收
-            if (dur.count() >= 60 && threadCurrentSize_ > initThreadSize_) {
+            if (dur.count() >= THREAD_MAX_IDLE_TIME &&
+                threadCurrentSize_ > initThreadSize_) {
               // 回收线程
               // 把线程对象从线程列表容器中删除
               // 记录线程数量相关变量的值修改
@@ -171,12 +180,18 @@ void ThreadPool::threadFunc(int threadId) {
               return;
             }
           }
+        } else {
+          // 非cache模式, 等待notEmpty条件
+          notEmpty_.wait(lock,
+                         [this]() -> bool { return taskQueue_.size() > 0; });
         }
-      } else {
-        // 非cache模式, 等待notEmpty条件
-        notEmpty_.wait(lock,
-                       [this]() -> bool { return taskQueue_.size() > 0; });
+
+        // 线程池要结束, 回收线程资源
+        if (!isPoolRunning) {
+          break;
+        }
       }
+
       // 取出一个任务后空闲线程数量减1
       idleThreadSize_--;
 
@@ -208,6 +223,12 @@ void ThreadPool::threadFunc(int threadId) {
     // 更新上次执行时间
     lastTime = std::chrono::high_resolution_clock::now();
   }
+
+  // 线程池要结束, 回收线程资源
+  threads_.erase(threadId);
+  std::cout << "threadid: " << std::this_thread::get_id() << " exit"
+            << std::endl;
+  exitCond_.notify_all();  // 唤醒所有的exitCond条件变量阻塞的线程
 }
 
 bool ThreadPool::checkRunningState() const { return isPoolRunning; }
