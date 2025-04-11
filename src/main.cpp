@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 
+#include "Any.h"
 #include "Task.h"
 #include "ThreadPool.h"
 
@@ -11,12 +12,14 @@ class MyTask : public Task {
   MyTask(int begin, int end) : begin_(begin), end_(end) {}
 
   // 如何设计run函数的返回值, 可以返回任意类型
-  void run() {
-    std::cout << "begin threadFunc tid: " << std::this_thread::get_id()
-              << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-    std::cout << "end threadFunc tid: " << std::this_thread::get_id()
-              << std::endl;
+  Any run() {
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    uint32_t sum;
+    for (int i = begin_; i < end_; ++i) {
+      sum += i;
+    }
+    std::cout << sum << std::endl;
+    return Any(sum);
   }
 
  private:
@@ -25,23 +28,22 @@ class MyTask : public Task {
 };
 int main(int argc, char* argv[]) {
   ThreadPool pool;
+  // pool.setThreadPoolMode(ThreadPoolMode::MODE_CACHED);
+
   pool.start(4);
 
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
+  uint32_t sum = 0;
+  Result res1 = pool.submitTask(std::make_shared<MyTask>(1, 10000));
 
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
+  // Result res2 = pool.submitTask(std::make_shared<MyTask>(10001, 20000));
 
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
-  pool.submitTask(std::make_shared<MyTask>());
+  // Result res3 = pool.submitTask(std::make_shared<MyTask>(20001, 30000));
 
-  getchar();
+  // pool.submitTask(std::make_shared<MyTask>(20001, 30000));
+  // pool.submitTask(std::make_shared<MyTask>(20001, 30000));
+  // pool.submitTask(std::make_shared<MyTask>(20001, 30000));
+
+  std::cout << "main over" << std::endl;
+  // std::this_thread::sleep_for(std::chrono::seconds(100));
   return 0;
 }
